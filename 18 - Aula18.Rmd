@@ -1,0 +1,72 @@
+---
+title: "Aula18"
+author: "Érika S."
+date: "02/10/2019"
+output: html_document
+---
+
+# Validação Cruzada
+
+A validação cruzada é um método de particionamento de dados que pode ser usado para avaliar a estabilidade das estimativas dos parâmetros, a precisão de um algoritmo de classificação, a adequação de um modelo ajustado e em muitas outras aplicações. O Jackknife pode ser considenado um caso particular de validaõa cruzada, porque é usado principalmente para estimar o viés e o erro padrão de um estimador.   
+Ao criar um classificador, um pesquisador pode particionar os dados em conjuntos de treinamento e teste. O modelo é estimado usando apenas os dados do conjunto treinamento e a taxa de classificação incorreta é estimada executando o classificador no conjunto de teste. Da mesma forma, o ajuste de qualquer modelo pode ser avaliado retendo um conjunto de teste na estimativa do modelo e, em seguida, usando o conjunto de teste para ver o quão bom o modelo se ajusta aos novos dados de teste.  
+Outra versão da validação cruzada é a validação cruzada "n-fold" que particiona os dados em n conjuntos de teste (agora pontos de teste). Esse procedimento de "deixar um de fora" é com o Jackknife. Os dados podem ser divididos em qualquernúmero k de partições, para que haja k conjuntos de teste. Em seguida, o modelo ajustado deixa de fora um conjunto de teste por vez, para que os modelos sejam ajustados k vezes.   
+
+**Exemplo:** (Seleção de Modelo)  
+O conjunto de dados iranslag (DAAG) apresenta 53 medições de ferro por dois métodos, químico e magnético
+
+```{r}
+library(DAAG)
+data("ironslag")
+
+#plot(ironslag$chemical, ironslag$magnetic, type = "p")
+
+library(ggplot2)
+
+ggplot(ironslag, aes(chemical, magnetic)) + 
+  geom_point()
+```
+
+A partir do plot, parece que um polinômio quadrático, ou possivelmente um modelo exponencial ou logaritmo, pode ajustar aos dados melhor que uma linha.   
+Existem várias etapas para a seleção de modelo, mas vamos nos concentrar no erro de previsão. O erro de previsão pode ser estimado por validação cruzada, sem fazer suposições distributiva fortes sobre a variável do erro.  
+Os modelos propostos para prever a medição magnética(y) a partir da medição química(x), são  
+1. Linear: $Y = \beta_0 + \beta_1x + E$  
+2. Quadrática: $Y = \beta_0 + \beta_1x + \beta_2x^2 + E$  
+3. Exponencial: $log(y) = log(\beta_0) + \beta_1x = E$  
+4. Log-log: $log(y) = \beta_0 + \beta_1log(x) + E$
+
+```{r}
+a = data.frame(chemical = 10:40)
+# Linear
+modelolinear = lm(magnetic ~ chemical, data = ironslag)
+predilinear = predict(modelolinear, a)
+
+# Quadratica
+modeloquadratico = lm(magnetic ~ chemical + I(chemical^2), data = ironslag)
+prediquadratico = predict(modeloquadratico, a)
+
+# Exponencial
+modeloexponencial = lm(log(magnetic) ~ chemical , data = ironslag)
+prediexponencial = exp(predict(modeloexponencial, a))
+
+# Log-Log
+modelologlog = lm(log(magnetic) ~ log(chemical) , data = ironslag)
+prediloglog = exp(predict(modelologlog, a))
+
+# Plot
+
+par(mfrow = c(2,2))
+plot(ironslag$chemical, ironslag$magnetic, type = "p", main = "Modelo Linear", xlab = "Chemical", ylab = "Magnetic")
+lines(a$chemical, predilinear, lwd = 2, col= "blue")
+
+plot(ironslag$chemical, ironslag$magnetic, type = "p", main = "Modelo Quadrático", xlab = "Chemical", ylab = "Magnetic")
+lines(a$chemical, prediquadratico, lwd = 2, col= "pink")
+
+plot(ironslag$chemical, ironslag$magnetic, type = "p", main = "Modelo Exponencial", xlab = "Chemical", ylab = "Magnetic")
+lines(a$chemical, prediexponencial, lwd = 2, col= "skyblue3")
+
+plot(ironslag$chemical, ironslag$magnetic, type = "p", main = "Modelo Log-Log", xlab = "Chemical", ylab = "Magnetic")
+lines(a$chemical, prediloglog, lwd = 2, col= "orange2")
+
+
+```
+

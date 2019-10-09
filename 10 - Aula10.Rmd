@@ -1,0 +1,57 @@
+---
+title: "Aula10"
+author: "Érika S."
+date: "09/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+**Exemplo:** Use simulação para estimar o poder e faça um gráfico da curva empírica do poder do teste t para testar  
+$$H_0: \mu = 500 \\
+H_1: \mu > 500$$  
+
+Considerando $X_1,...,X_20$ uma a.a. da $N(\mu , \sigma^2)$, com $\sigma = 100$ e adotando nível de significância qual a $\alpha = 0,05$  
+
+_Recordando:_ $T* = \frac{\bar{X} - 500}{S\ \sqrt{20}} \sim t(19)$  
+
+Obs.: para fazer o gráfico, precisamos do poder empírico para uma sequência de $\theta$'s, sendo que cada ponto corresponde um experimento de Monte Carlo.  
+
+
+```{r, warning= FALSE, message=FALSE}
+#n = c(10,20,30,50,100,500)
+library(tidyverse)
+library(plotly)
+
+n = 20
+m = 10000
+sigma = 100
+#x = rnorm(10)
+set.seed = 100
+mi = 500
+
+propE = function(n, mi, sigma){
+  assimetriatodos = sapply(1:m, function(m){
+  x = rnorm(n,mean =  mi, sd = sigma)
+  d = t.test(x, mu = 500, alternative = "greater")
+  d$p.value
+})
+
+erro1 = mean(assimetriatodos < 0.05)
+erro1
+}
+
+set.seed = 100
+
+a = sapply(seq(500,700,10), function(x){
+  rbind(PiTheta = propE(n, x, sigma), Mi = x)
+}) %>%  t() %>% as.data.frame()
+
+## O melhor poder é o que tiver a curva mais acentuada
+
+# a %>% plot_ly(x =~V2, y = ~V1, type = "scatter", mode = 'markers') %>% 
+#  add_lines(y = 1) %>%    layout(title = "Poder",
+#          xaxis = list(title = "Mu"),
+#          yaxis = list (title = "Pi(Mu)"), showlegend = F)
+```
+

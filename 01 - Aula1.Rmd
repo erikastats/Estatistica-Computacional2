@@ -1,0 +1,80 @@
+---
+title: "Aula 1"
+author: "Érika S."
+date: "19/08/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Integração de Monte Carlo
+
+Seja g(x) uma função e suponha que queremos calcular 
+$\int_{a}^{b}g(x)dx$ (assumindo que a integral exista). Recordamos que se X é uma v.a com densidade f(x), então a esperança da v.a $y = g(x)$ é   
+
+$$E(g(x)) = \int_{-\infty}^{+\infty}g(x)f(x)dx $$  
+
+Se uma v.a estiver disponível a partir da distribuição de X, um estimador não viesado de E(g(x)) é a média amostral. Considere o problema de estimar  
+$$\theta = \int_{0}^{1}g(x)dx $$
+
+Se $X_1, ..., X_m$ é uma amostra aleatória da distribuição Uniforme (0,1), então  
+
+$$\hat\theta = \bar{g_m(x)} = \frac{1}{m} \sum_{i=1}^m g(x_i)$$
+converge para E[g(x)] = $\theta$ com probabilidade 1.  
+
+## Exemplo 1 
+Calcule um estimador de Monte Carlo de  
+
+$$\theta = \int_{0}^{1}e^{-x} dx $$
+e compare o verdadeiro valor.
+
+### Monte Carlo
+```{r}
+set.seed(100)
+
+
+MC = function(x){
+  a = runif(x)
+  exp(-a) %>% mean()
+}
+
+MC(100)
+MC(1000)
+MC(10000)
+MC(100000)
+
+```
+
+
+Exemplo 2: 
+Podemos substituir a densidade da U(0,1) por qualquer outra densidade com suporte no intervalo entre os limites de integração. Por exemplo, 
+
+$$\int_{a}^{b}g(t)dt = (b-a)\int_{a}^{b}g(t)\frac{1}{b-a}dt$$  
+
+que é (b-a) vezes o valor esperado de g(x), sendo x v.a. com distribuição no intevalo (a,b). A integral é portanto (b-a) vezes o valor médio de g(x) sobre (a,b).  
+Calcule o estimador de Monte Carlo para
+$$\theta = \int_{2}^{4}e^{-x} dx $$  
+
+```{r}
+set.seed(100)
+a = 2
+b = 4
+MC2 = function(x, a, b){
+  d = runif(x, 2,4)
+  e = exp(-d)
+  (b-a)*mean(e)
+}
+
+MC2(100,a, b)
+MC2(1000,a, b)
+MC2(10000,a, b)
+MC2(100000,a, b)
+
+
+```
+

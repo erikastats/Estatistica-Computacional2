@@ -1,0 +1,78 @@
+---
+title: "Aula11"
+author: "Érika S."
+date: "16/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+# Bootstrap
+
+O bootstrap foi introduzido em 1970 por Efran, com mais desenvolvimento 1981, 192 e inúmeras outras publicações, incluindo a monografia de Efran e Tibshirani 1984.  
+Os métodos de bootstrap são uma classe de métodos não paramétricos de Monte carlo que estimam a distribuição de uma população por reamostragem. Os métodos de reamostragem tratam uma amostra observada como uma população finita, e amostras são geradas (reamostradas) para estimar as características da população e fazer inferências sobre a população amostrada. Os métodos de bootstrap são frequentemente usados quando a distribuição da população não é especificada, a amostra é a única informação disponível.  
+A distribuição da população finita representada pela amostra pode ser considerada como uma pseudo-população com características semelhantes à população real. Gerando repetidamente amostras aleatórias dessa pseudo-população (reamsotragem), a distribuição amostral de uma estatística pode ser estimado. As propriedades de um estimador, como viés ou erro padrão, podem ser estimados por reamostragem.  
+O método bootstrap gera amostras aleatórias da distribuição empírica da amostra.  
+Suponha que x = $x_1,...,x_n)$ é uma amostra aleatória observada da distribuião com fd F(x). Se X* é selecionada aleatoriamente de x, então  
+$$P(X^* = x_i) = \frac{1}{n}, \ i = 1,...,n$$  
+A reamostragem gera uma amostra aleatória $X^*_1, ..., X^*_n$ por amostragem com reposição de x. As variáveis aleatórias $X_i$ são iid, distribuída uniformemente no conjunto $\{x_1,...,x_n\}$  
+Para gerar uma amostra aleatória bootstrap por reamostragem x, gera de maneira aleatória n valores inteiros $i^*_1, ..., i^*_n$ distribuído uniforme em $\{1,...,n/}$ e selecionar a amostra bootstrap  
+$$x^* = (x_{i1},...,x_{in})$$  
+Suponha qeu $\theta$ é  o parãmetro de interesse ($\theta pode ser um vetor$) e $\hat\theta$ é um estimador de $\theta$. Então o estimador bootstrap da distribuição de $\hat\theta$ é obtido a partir dos passos.  
+
+1. Para da réplica bootstrap, indexado por b = 1,...,B  
+  a. Gerar amostra $x^{x(b)} = (x^*_1, ..., x^*_n)$ por reamostragem com reposição da amostra observada
+  b. calcular a b-ésima réplica $\hat\theta ^{(b)} $ a partir da b-ésima amostra bootstrap  
+2. A estimativa bootstrap da $F_{\hat\theta}(.)$ é a distirbuição empírica das réplicas $\hat\theta^{(1)}, ..., \hat\theta^{(B)}$  
+
+**Exemplo 1** Considerando os passos anteriores, encontre a estimativa bootstrap da $F_{\hat\theta}(.)$, com $\mu$ sendo amédia da amostra, e adote  
+
+x = (2.51,-0.64,0.25,-2,-0.25,-0.87,-1.27,1.45,-0.76,0.68)  
+
+Adote também que B = 200 e construa o histograma das estimativa $\hat\mu{(b)}$  
+
+```{r}
+library(tidyverse)
+
+x = c(2.51,-0.64,0.25,-2,-0.25,-0.87,-1.27,1.45,-0.76,0.68)  
+
+michapeu = sapply(1:200, function(i){
+  thetachapeu = sample(x, size = length(x), replace = T) 
+  mean(thetachapeu)
+})
+
+hist(michapeu)
+
+```
+
+_Rotina_
+
+```{r}
+x = c(2.51,-0.64,0.25,-2,-0.25,-0.87,-1.27,1.45,-0.76,0.68)  
+B = 200
+mu = numeric(B)
+for(i in 1:B){
+  mu[i] = mean(sample(x, size = 10, replace = T))
+  
+}
+
+hist(mu, prob = T)
+```
+
+## Estimação bootstrap do Erro padrão
+
+A estimativa bootstrap do erro padrão de um estimador $\hat\theta$ é o desvio padrão amostral das réplicas bootstrap $\hat\theta^{(1)},..., \hat\theta^{(B)}$, ou seja  
+
+$$\hat{se}(\hat\theta) = \sqrt{\frac{1}{B-1}\sum^B_{b=1}(\hat\theta^{(b)} - \bar{\hat\theta})^2}$$   
+sendo $\bar{\hat\theta^*} = \frac{1}{B}\sum^B_{b=1}\hat\theta^{b}$  
+De acordo com Efran e Tibshirami, o número de réplicas necessárias para uma boa estimativa do erro padrão não é grande, B = 50 é usualemnte grande o suficiente, e raramente é necessário B > 200. (B muito maior será necessário para a estimativa do intervalo de conficança)  
+
+**Exemplo 2** O conjunto de dados abaixo é uma amostra de população de 82 escolas de direito.  
+
+LSAT = (576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = (339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+
+sendo que LSAT significa a ponderação média no teste de admissão na faculdade de direito e GPA é a média das notas na grafuação.  
+Estime a correlação entre LSAT e GPA e calcule a estimativa bootstrap do erro padrão da correlação amostral.
+

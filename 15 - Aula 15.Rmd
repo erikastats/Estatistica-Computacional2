@@ -1,0 +1,97 @@
+---
+title: "Aula 15"
+author: "Érika S.M."
+date: "25/09/2019"
+output: pdf_document
+---
+
+
+# Intervalo de Confiança Bootstrap
+
+A seguir serão discutidas várias abordagens para obter intervalos de confiança adotando bootstrap.
+
+## Intervalo de Confiança Bootstrap Normal Padrão
+
+O intervalo de confiança bootstrap normal padrão é a abordagem mais simples, mas não necessariamente a melhor. Suponha que $\hat{\theta}$ é um estimador do parâmetro $\theta$ e assuma que $se(\hat{\theta})$ é o estimador do erro padrão. Se $\hat{\theta}$ é a média amostral e o tamanho da amostra é grande, então pelo Teorema do Limite Central implica-se que
+
+$$
+Z = \frac{\hat\theta - E(\hat\theta)}{se(\hat\theta)}
+$$
+
+é aproximadamente normal padrão. Consequentemente, se $\hat\theta$ é não viesado para $\theta$, então um I.C. de aproximadamente $100(1-\alpha)\%$ para $\theta$ é o intervalo
+
+$$
+\hat\theta \pm Z_{\frac{\alpha}{2}} se(\hat\theta)
+$$
+
+sendo $Z_{\frac{\alpha}{2}} = \Phi^{-1}(1-\frac{\alpha}{2})$. Esse intervalo é fácil, mas várias suposições foram feitas. Para aplicar a distribuição normal, assumimos que a distribuição de $\hat\theta$ é normal ou $\hat\theta$ é a média amostral e o tamanho amostral é grande. Também assumimos que $\hat\theta$ é não viesado para $\theta$.
+
+Aqui tratamos $se(\hat\theta)$ como um parâmetro conhecido, mas no bootstrap $se(\hat\theta$ é estimado.
+
+# Intervalo de Confiança Bootstrap Básico
+
+O intervalo de confiança bootstrap básico transforma a distribuição das réplicas subtraindo a estatística observada. Os quantis da amostra transformada são usados para determinar os limites de confiança.
+
+Os limites do intervalo bootstrap básico com $100(1-\alpha)\%$ de confiança são $(2\hat\theta - \hat\theta_{1 - \frac{\alpha}{2}}, 2\hat\theta - \hat\theta_{\frac{\alpha}{2}})$.
+
+Para entender o porquê desses limites, suponha que T é um estimador de $\theta$ e $a_\alpha$ é o $\alpha$-quantil de $T-\theta$, então
+
+$$
+P(T-\theta > a_\alpha) = 1 - \alpha \implies P(T-a_\alpha > \theta) = 1-\alpha
+$$
+
+Portanto, um intervalo de confiança $100(1 - 2\alpha)\%$ é dado por $(t - a_{1-\alpha}, t - a_\alpha)$.
+
+Em bootstrap a distribuição de T é geralmente desconhecida, mas quantis podem ser estimados e um método aproximado pode ser aplicado.
+
+Calcule o $\alpha$-quantil amostral $(\hat\theta_\alpha)$ da f.d. empírica das réplicas $\hat\theta_\alpha$. Denote o $\alpha$-quantil de $\hat\theta_\alpha - \hat\theta$ por $b_\alpha$. Então $\hat b_\alpha = \hat\theta_\alpha - \hat\theta$ é o estimador de $b_\alpha$.
+
+Uma aproximação do limite superior para um intervalo de confiança $100(1-\alpha)\%$ para $\theta$ é dado por
+$$
+\hat\theta - \hat b_\alpha = \hat\theta - (\hat\theta_\alpha - \hat\theta) = 2\hat\theta - \hat\theta_{\frac{\alpha}{2}}
+$$
+
+De maneira similar, uma aproximação para o limite inferior é dado por $2\hat\theta - \hat\theta_{1 - \frac{\alpha}{2}}$. Portanto, um intervalo de confiança $100(1 - \alpha)\%$ bootstrap básico para $\theta$ é dado por 
+
+$$
+(2\hat\theta - \hat\theta_{1 - \frac{\alpha}{2}}, 2\hat\theta - \hat\theta_{\frac{\alpha}{2}})
+$$
+
+# O intervalo de Confiança Bootstrap Percentil
+
+Um intervalo de confiança bootstrap percentil usa a distribuição empírica das réplicas bootstrap como distribuição de referência. Os quantis da distribuição empírica são estimadores dos quantis amostral de $\hat\theta$, de modo que esses quantis (aleatórios) podem corresponder melhor a distribuição verdadeira quando a distribuição de $\hat\theta$ não é normal. Suponha que $\hat\theta^{(1)},...,\hat\theta^{(B)}$ são réplicas bootstrap da estatística $\hat\theta$, da f.d. empírica das réplicas, calcule $\frac{\alpha}{2}$-quantil $(\hat\theta_{\frac{\alpha}{2}})$ e o $1 - \frac{\alpha}{2}$-quantil $(\hat\theta_{1-\frac{\alpha}{2}})$.
+
+Efran e Tibshirani mostram que o intervalo percentil tem algumas vantagens teóricas sobre o intervalo normal padrão e um desempenho de cobertura um pouco melhor.
+
+_*Exemplo:*_ Calcule os intervalos de confiança $95\%$ bootstrap para os dados do exemplo 2. Adote 2000 repetições.
+
+```{r}
+d = 2000
+LSAT = c(576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = c(339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+n = length(GPA)
+
+set.seed(100)
+core = sapply(1:d, function(x){
+  i = sample(1:n, size = n,replace = T)
+  cor(LSAT[i], GPA[i])
+})
+
+## IC bootstrap normal padrao
+
+cor(LSAT, GPA) + c(-1,1)*sd(core)*qnorm(0.975)
+
+## basic
+
+2*cor(LSAT, GPA) - c( quantile(core, 0.975), quantile(core, 0.025))
+
+## Percentil
+
+cbind( quantile(core, 0.025), quantile(core, 0.975))
+
+```
+
+
+
+
+

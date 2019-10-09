@@ -1,0 +1,101 @@
+---
+title: "Aula9"
+author: "Érika S."
+date: "05/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+$$\sqrt{b_1} = \frac{\frac{1}{n}\sum^m_{i=1}(X_i - \bar{X})^3}{(\frac{1}{n}\sum^m_{i=1}(X_i - \bar{X})^2)^{3/2}}$$ 
+$$H_0: \sqrt{\beta_1} = 0 \\ H_1: \sqrt{\beta_1} \neq 0$$ 
+$$ \rightarrow  se \sqrt{b_1} \ for \ grande \ rejeitamos \ H_0 $$ 
+$$ se \sqrt{b_1} \ for \ peq. \ rejeitamos \ H_0 $$  
+
+quando n é grande $\sqrt{b_1} \sim N(0,6/n)$
+
+```{r}
+razaob1 = function(x){
+  media = mean(x)
+  a = mean((x-media)^3)
+  b = mean((x-media)^2)
+  a/(b^1.5)
+}
+
+```
+
+
+```{r}
+
+n = c(10,20,30,50,100,500)
+#n = 10
+m = 10000
+
+#x = rnorm(10)
+set.seed = 100
+
+propE = function(n){
+  assimetriatodos = sapply(1:m, function(m){
+  x = rnorm(n)
+  razaob1(x)
+})
+pc = qnorm(0.975, 0, sd = sqrt(6/n))
+erro1 = mean(abs(assimetriatodos) > pc)
+erro1
+}
+
+cbind(n, sapply(n, propE))
+## Estimativa para o erro tipo 1
+```
+
+Para amostras finitas, deve-se usar $Var(\sqrt{b_1} = \frac{6(n-2)}{(n+1)(n+3)}$
+
+```{r}
+n = c(10,20,30,50,100,500)
+#n = 10
+m = 10000
+
+#x = rnorm(10)
+set.seed = 100
+
+propE = function(n){
+  assimetriatodos = sapply(1:m, function(m){
+  x = rnorm(n)
+  razaob1(x)
+})
+pc = qnorm(0.975, 0, sd = sqrt(6*(n-2)/((n+1)*(n+3))))
+erro1 = mean(abs(assimetriatodos) > pc)
+erro1
+}
+
+cbind(n, sapply(n, propE))
+## Estimativa para o erro tipo I
+```
+
+
+## Poder do teste
+
+Em um teste de hipóteses $H_0$ vs $H_1$, o erro tipo II ocorre quando $H_1$ é verdadeiro, mas $H_0$ não é rejeitado. O poder do teste é dado pela função poder  
+$$\Pi: \Theta \rightarrow [0,1], $$  
+que é a probabilidade $\Pi(\theta)$ de rejeitar $H_0$ dado que o verdadeiro valor do parâmetro é $\theta$. Assim, para um dado $\Theta_1 \ e \ \theta_1$, a probabilidade do erro tipo II é $1- \Pi(\theta_1)$. De maneira ideal, preferimos um teste com baixa probabilidade de erro. O erro tipo I é controlado pela escolha do nível de significância $\alpha$. Baixo valor do erro tipo II corresponde à poder alto sob a hipótese alternativa. Assim, ao comparar procedimentos de testes para as mesmas hipóteses com o mesmo nível de significância, estamos interessados em comparar o poder do teste. Em geral, a comparação não é um problema, mas o poder $\Pi(\theta_1)$ de um teste sob a hipótese alternativa depende do valor particular da alternativa $\theta_1$. Para o teste t no exemplo anterior $\Theta_1 = (500,700)$.  
+Se a função poder de um teste não pode ser calculada analiticamente, o poder do teste, considerando a hipótese alternativa fixada $\Theta_1 \ e \ \theta_1$, pode ser estimada por meodos de Monte Carlo. Note que a função poder é definida para todo $\theta \in \Theta$, mas o nível de significância controla $\Pi(\theta) \leq \alpha$, para todo $\theta \in \Theta_0$.  
+
+## Experimento de Monte Carlo Para Estimar o Poder de um Teste Contra uma Hipótese Alternativa fixada
+
+1. Selecione um valor particular do parâmetro $\theta_1\in \Theta$
+2. Para cada réplica, indexada por j= 1,...,m  
+  a. gerar a j-ésima amostra aleatória, $x_1^{(j)}, ..., x_n^{(j)}$ sob as condições da hipótese alternativa $\theta = \theta_1$  
+  b. calcular a estatística de teste $T_j$ a partir da j-ésima amostra  
+  c. registrar a decisão do teste: $I_j = 1$ se $H_0$ é rejeitado ao nível de significância $\alpha$, e $I_j = 0$ caso contrário.  
+3. Calcular a proporção de testes que rejeita $H_0$, que é  
+
+$$\widehat{\Pi(\theta_1)} = \frac{1}{m}\sum^m_{j=1}I_j$$
+
+```{r, include=FALSE}
+ # a = sapply(seq(500,700,10), function(x){
+ #   rbind(PiTheta = propE(n, x, sigma), Mi = x)
+ # }) %>%  t() %>% as.data.frame()
+#a %>% plot_ly(x =~V2, y = ~V1, type = "scatter")
+```
+
+

@@ -1,0 +1,76 @@
+---
+title: "Aula17"
+author: "Érika S."
+date: "30/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Melhor intervalo de Confiança Bootstrap
+
+O melhor intervalo de confiança bootstrap é uma modificação do intervalo percentil que tem propriedade teórica melhor, além de desempenho na prática. Para um intervalo de confiança $100(1-\alpha)\%$, o usual $\alpha/2$ e $1 - \alpha/2$ quantiles são ajustados por dois fatores: um de correção de viés e um de correção de assimetria. A correção de viés é denotada por _Z~o~_ e o ajuste da assimetria ou "aceleração" é denotado por _a_. O melhor intervalo de confiança bootstrap é chamado de BCa.  
+Para um intervalo de confiança $(1-\alpha)\%$ BCa bootstrap calcule  
+$$\alpha_1 = \Phi(\hat{Z}_0 + \frac{\hat{Z}_0 + Z_{\alpha/2}}{1 + \hat{a}(\hat{Z}_0 +Z_{\alpha/2} )}$$
+$$\alpha_2 = \Phi(\hat{Z}_0 + \frac{\hat{Z}_0 + Z_{\alpha/2}}{1 + \hat{a}(\hat{Z}_0 +Z_{1 - \alpha/2} )}$$
+
+onde $Z_{\alpha} = \Phi^{-1}(\alpha)$ e $Z_{0}$ e $\hat{a}$ são dados por  
+$$\hat{Z}_0 = \Phi^{-1}(\frac{1}{B}\sum^B_{i = 1}I(\hat{\theta}^{(b)} < \hat{\theta}))$$  
+sendo I(.) a função indicadora (note que $\hat{Z}_0 = 0$ se $\hat\theta$ é a mediana das réplicas bootstrap), e   
+$$\hat{a} = \frac{\sum^n_{i=1}(\bar{\theta}_{(.)} - \theta_{(i)})^3}{6(\sum^n_{i=1}(\bar{\theta}_{(.)} - \theta_{(i)})^2)^{3/2}}$$  
+
+que é calculado a partir das réplicas jacknife.  
+Finalmente, o intervalo BCa é $(\theta^*_{\alpha1}, \theta^*_{\alpha2})$  
+Os limites superior e inferior do IC BCa são os quantis empíricos $\alpha_1$ e $\alpha_2$ das réplicas bootstrap.  
+
+**Exemplo:** Calcule o IC 95% BCa bootstrap para a correlação das variáveis LSAT e GPA. Adote B = 1000
+
+```{r}
+B = 1000
+LSAT = c(576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = c(339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+n = length(GPA)
+theta = cor(LSAT, GPA)
+
+# Gera o bootstrap
+set.seed(100)
+Theta_b = sapply(1:B, function(x){
+  i = sample(1:n, size = n,replace = T)
+  novoLSAT = LSAT[i]
+  novoGPA = GPA[i]
+ cor(novoLSAT, novoGPA)
+})
+
+# Calculando Z_0
+zZero = qnorm(mean(Theta_b < theta))
+
+# Gerando jackknife
+Theta_Jack = sapply(1:n, function(x){
+
+  novoLSAT = LSAT[-x]
+  novoGPA = GPA[-x]
+ cor(novoLSAT, novoGPA)
+})
+
+achapeu = sum( (mean(Theta_Jack) - Theta_Jack)^3 ) / (6*(sum( (mean(Theta_Jack) - Theta_Jack)^2))^(3/2)) 
+alpha = 0.05
+
+# Calculando os alphas   
+
+alpha1 = pnorm(zZero + ( zZero + qnorm(alpha/2))/(1 + achapeu*(zZero + qnorm(alpha/2))) )
+
+alpha2 = pnorm(zZero + ( zZero + qnorm(1 - alpha/2))/(1 + achapeu*(zZero + qnorm(1 - alpha/2))) )
+
+# Calculando o intervalo BCa
+c(quantile(Theta_b, alpha1), quantile(Theta_b, alpha2))
+
+
+```
+
+## Propriedades da IC BCa
+
+Existem duas vantagens teóricas importantes nos intervalos de confiança BCa bootstrap. Os intervalos de confiança BCa respeitam transformações e tem precisão de segunda ordem. Um IC respeita tranformação se o IC para $\theta$ é $(t(\hat\theta^*_{\alpha1})t(\hat\theta^*_{\alpha2}))$ e adotando $t(\theta)$ uma transformação do parâmetro $\theta$, logo o IC para $t(\theta)$ é $(t(\hat\theta^*_{\alpha1})t(\hat\theta^*_{\alpha2}))$. Um intervalo de confiança tem precisão de primeira ordem se o erro tende a zero na taxa $1/ \sqrt{(n)}$ (sendo n o tamanho da amostra) e é de segunda ordem se o erro tende a zero na taxa 1/n.  
+_obs.:_  
+  i. O IC t bootstrap é de segunda ordem, mas não respeita transformação  
+  ii. O IC percentil bootstrap respeita transformação, mas é apenas de primeira ordem.  
+  iii. O IC normal padrão não respeita transformação e nem é de segunda ordem.

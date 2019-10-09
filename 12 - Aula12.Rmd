@@ -1,0 +1,97 @@
+---
+title: "Aula12"
+author: "Érika S."
+date: "18/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+**Exemplo 2** O conjunto de dados abaixo é uma amostra de população de 82 escolas de direito.  
+
+LSAT = (576,635,558,578,66,580,550,661,651,605,6653,575,545,572,594)  
+GPA = (339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+
+sendo que LSAT significa a ponderação média no teste de admissão na faculdade de direito e GPA é a média das notas na graduação.  
+Estime a correlação entre LSAT e GPA e calcule a estimativa bootstrap do erro padrão da correlação amsotral.
+
+Para isso, faça
+
+1- Para cada réplica bootstrap, indexada por b = 1,...,B  
+  a. gerar amostra $x^{*(b)} = x^*_1, ..., x^*_n$ por reamostragem com reposição da amostra  
+  b. calcular a b-ésima réplica $\hat\theta^{(b)}$ da amostra $x^{*(b)}$, sendo $\hat\theta$ é a correlação amostral entre (LSAT, GPA)
+2- A estimativa bootstrap do erro padrão é o desvio padrão amostral das réplicas $\hat\theta^{(1)}, ..., \hat\theta^{(B)}$
+
+```{r}
+LSAT = c(576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = c(339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+
+set.seed(100)
+core = sapply(1:200, function(x){
+  i = sample(1:15, size = 15,replace = T)
+  cor(LSAT[i], GPA[i])
+})
+
+sd(core)
+
+hist(core, prob = T)
+```
+
+
+## Estimação Bootstrap do viés
+
+Se $\hat\theta$ é um estimador não viesado de $\theta$, então $E(\hat\theta) = \theta$. o viés de um estiamdor $\hat\theta$, para $\theta$ é  
+$$viés(\hat\theta) = E[\hat\theta - \theta] = E[\hat\theta] - \theta$$  
+Assim, toda estatística é um estimador não viesado de seu valor esperado, e em particular, a média amostral é um estimador não viesado da média.  
+Um exemplo de esitmador viesado é o estimador de máxima verossimilhança para a variância, ou seja  
+$$\hat\sigma^2 = \frac{1}{n}\sum^n_{i=1}(X_i - \bar{X})^2$$  
+tem valor esperado igual a $(1 - 1/n)\sigma^2$. Portanto, $\hat\sigma^2$. Portanto, $\hat\sigma^2$ subestima $\sigma^2$, e o viés é $-\frac{\hat\sigma^2}{n}$.  
+A estimativa bootstrap do viés usa as réplicas bootstrap de $\hat\theta$ para estimar a distribuição amostral de $\hat\theta$. Para população finita $x = (x_1, ..., x_n)$, o parâmetro é $\hat\theta(x)$ (ou seja, função da amostra) e existe B estimativas $\hat\theta^{(b)}$ independentes e identicamente distribuídas. A média amostral das réplicas $\{\hat\theta^{(b)}\}$ é não viesada para seu valor esperado $E[\hat\theta^*]$, assim a estimativa bootstrap do viés é  
+$$\widehat{viés(\hat\theta)} = \bar{\hat\theta^*} - \hat\theta,$$  
+sendo que $\bar{\hat\theta^*} = \frac{1}{B}\sum^B_{b=1}\hat\theta^{(b)}$ e $\hat\theta = \hat\theta(x)$ é a estimativa calculada dos dados originais
+
+**Exemplo** Calcula a estimativa bootstrap do viés da média do exemplo 1
+
+```{r}
+x = c(2.51,-0.64,0.25,-2,-0.25,-0.87,-1.27,1.45,-0.76,0.68)  
+set.seed(100)
+michapeu = sapply(1:200, function(i){
+  thetachapeu = sample(x, size = length(x), replace = T) 
+  mean(thetachapeu)
+})
+
+
+vies = mean(michapeu) - mean(x)
+vies
+```
+
+```{r}
+n = seq(10,3000,20)
+
+B = 2000
+set.seed(100)
+ViesBoos = function(n){
+  x = rnorm(n)
+  media = sapply(1:B, function(a){
+    thetachapeu = sample(x, replace = T)
+    mean(thetachapeu)
+  })
+  c(x = n,y = (mean(media) - mean(x)))
+}
+
+todos = sapply(n, ViesBoos) %>% t()
+todos 
+
+plot(todos[,1],todos[,2], type = "l")
+abline(h = 0, col = "red")
+```
+
+```{r}
+ViesMedio = sapply(n, function(a){
+  b = sapply(1:1000, function(i){ViesBoos(n)}) %>% mean()
+  c(n,b)
+} ) %>% t()
+
+
+```
+

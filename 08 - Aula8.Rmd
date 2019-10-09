@@ -1,0 +1,89 @@
+---
+title: "Aula8"
+author: "Érika S."
+date: "04/09/2019"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+
+## Taxa Empírica do Erro Tipo I
+
+Uma taxa empírica do erro Tipo I pode ser calculada por um experimento de Monte Carlo. O teste é replicado um número grande de vezes sobre as condições de hipótese nula. A taxa empírica do erro tipo I para o experimento de Monte Carlo á proporção amostral de estatísticas de teste significativas entre as réplicas.  
+
+Experimento de Monte Carlo para avaliar a taxa de erro tipo I  
+
+1. Para cada réplica, indexada por j = 1, ..., m
+  a. Gerar a j-ésima amostra aleatória $x_1^{(j)}, ..., x_n{(j)}$ da distribuição com $\theta \in H_0$;
+  b. Calcular a estatística de teste $T_j$ da j-ésima amostra  
+  c. Registrar a decisão de teste, $I_j = 1$ se $H_0$ é rejeitada no nível de significância $\alpha$ e $I_j = 0$ caso contrário.  
+2. Calcular a proporção de testes significativos, ou seja, $\frac{1}{m}\sum^m_ {j=1}I_j$. Esta proporção é a taxa observada do erro tipo I.  
+
+Para o experimento de Monte Carlo descrito acima, o parâmetro estimado é a probabilidade do erro tipo I e a estimativa é a proporção amostral. Se denotarmos a taxa observada do erro tipo I por $\hat{p}$, uma estimativa de $se(\hat{p})$ é  
+
+$$\widehat{se(\hat{p})} = \sqrt{\frac{\hat{p}(1-\hat{p})}{m}} \leq \frac{0.5}{\sqrt{m}}$$  
+
+__Exemplo:__ Suponha que $X_1, ..., X_20$ é uma amostra da $N(\mu, \sigma^2)$. Considere o teste  
+
+$$H_0: \mu = 500 \\ H_1: \mu > 500$$  
+
+com $\alpha = 0.05$. Sob a hipótese nula  
+
+$$T* = \frac{\bar{X}-500}{S/\sqrt{20}} \sim t(19), $$  
+
+sendo que t(19) denota a distribuição t-Student com 19 graus de liberdade. Valores grandes de T* indicam a hipótese alterativa.  
+Use o método de Monte Carlo para calcular uma probabilidade empírica de erro tipo I quando $\sigma = 100$, e verifique se é aproximadamente igual a $\alpha = 0.05$  
+
+
+
+```{r}
+
+set.seed(100)
+n = 20  
+m = 10000
+sigmap = 100
+media = 500
+desvio = 100
+alpha = 0.05  
+se = 0.5/sqrt(m)
+
+gt = sapply(1:m, function(a){
+  x = rnorm(n,mean = media, sd = desvio)
+  a = t.test(x, mu = media, alternative = "greater")
+  a$p.value <=0.05
+})
+
+ p_testes_sig =  mean(gt) #  nível de confiança
+
+ p_testes_sig
+ 
+ # Intervalo de confiança
+ 
+ p_testes_sig + c(-se, +se)
+
+```
+
+Uma das abordagens mais simples para testar normalidade univariada é o teste de assimetria. No exemplo a seguir, investigamos se um teste baseado na distribuição assintótica da estatística de assimetria atinge o nível de significância no nível $\alpha$ sob a hipótese nula de normalidade.  
+
+__Exemplo:__ ( Teste de Assimetria para normalidade)  
+A assimetria $\sqrt{(\beta_1)}$ de uma v.a. C é definida por  
+
+$$\sqrt{(\beta_1)} = \frac{E[(x-\mu_x)^3]}{\sigma^3_2}$$  
+sendo $\mu_x = E(x)$ e $\sigma^2_x = Var(x)$. A distribuição é simétrica se $\sqrt{\beta_1} = 0$, assimatria positiva de $\sqrt{\beta_1} >0$ e assimetria negativa se $\sqrt{\beta_1} <0$. O coeficiente de assimetria é denotado por $\sqrt{b1}$, e definido por  
+
+$$\sqrt{b_1} = \frac{\frac{1}{n}\sum^m_{i=1}(X_i - \bar{X})}{(\frac{1}{n}\sum^m_{i=1}(X_i - \bar{X})^2)^{3/2}}$$    
+Se a distribuição de X é normal, então $\sqrt{b_1}$ é assintoticamente normal com média 0 e variância $6/n$. Distribuições normais são simétricas, e um teste de normalidade baseado sob assimetria rejeita a hipótese de normalidade para valores grandes de $|\sqrt{b_1}|$. As hipóteses são  
+$$H_0: \sqrt{\beta_1} = 0 \\ H_1: \sqrt{\beta_1} \neq 0$$  
+
+sendo a distribuição amostral da estatística de assimetria calculada sob a suposição de normalidade.  
+
+```{r}
+set.seed = 100
+alfa = 0.05
+n = c(10,20,30,50,100,500)
+sigma = 6/n
+m = 1000
+```
+

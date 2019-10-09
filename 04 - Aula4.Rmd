@@ -1,0 +1,46 @@
+---
+title: "Aula4"
+author: "Érika S."
+date: "26/08/2019"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+# Método Monte Carlo em Inferência
+
+- Os métodos de Monte Carlo abrangem um vasto conjunto de ferramentas computacionais na estatítisca;  
+- Podem se referir a qualquer método em inferência estatística ou análise numérica onde a simulação é usada;   
+- Podem ser aplicados para estimar parâmetros da distribuição amostral de uma estatística, erro quadrático médio (EQM), percentis ou outras quantidades de interesse.  
+- Podem ser projetados para avaliar a probabilidade de cobertura para intervalos de confiança, para estimar o poder do teste e para comparar o desempenho de diferentes procedimentos para um determinado problema.  
+
+
+## Método de Monte Carlo para Estimação
+
+Suponha $x_1,...,x_n$ v.a's com distribuição x. Um estimador $\hat\theta$ para o parâmetro $\theta$ é uma função $\hat\theta = \hat\theta(x_1,...,x_n)$ da amostra. Por simplicidade, seja x = $(x_1,...,x_n)^T\in \mathbb{R}^n$, e seja $x^{(1)},x^{(2)},...$ a sequência de amostras aleatórias independentes geradas da distribuição de X. A distribuição amostral de $\hat\theta$ pode ser gerada por repetidas retiradas independentes de amostras aleatórias $x^{(j)}$ e calcular
+$$\hat\theta^{(j)} = \hat\theta(x^{(j)}_1,...,x^{(j)}_n)$$  
+para cada amostra.  
+
+## Estimação de Monte Carlo e Erro Padrão
+
+**Exemplo:** Suponha que $x_1$ e $x_2$ são iid da distribuição normal padrão. Estime a diferença média $E(|X_1-X_2|)$.
+
+- Por integração:  
+
+$$E(|X_1-X_2|) = \int^{+\infty}_{-\infty}\int^{+\infty}_{-\infty}|x_1-x_2|\frac{1}{\sqrt{2\pi}}exp(-\frac{x_2^2}{2})dx_1dx_2 $$  
+$$ = \frac{2}{\sqrt{\pi}}= 1,128379$$
+
+_Solução:_ Para obter um estimador de Monte Carlo de $\theta = E(g(x_1,x_2)) = E(|x_1-x_2|)$ baseado em m repetições, geramos amostras aleatórias $x^{(j)} = (x_1^{(j)},x_2^{(j)})$ de tamanho 2 da distribuição normal padrão, j = 1,...,m. Então, calcule as réplicas $\hat\theta^{(j)} = g_j(x_1,x_2) = |x_1-x_2|, j = 1,...,m$ e a média das réplicas 
+$$\hat\theta = \frac{1}{m}\sum^m_{i=1}\hat\theta^{(j)} = \frac{1}{m}\sum^m_{i=1}|x_1^{(j)} -x_2^{(j)}|$$
+
+```{r}
+set.seed(100)
+m = 10000
+
+x1 = rnorm(m)
+x2 = rnorm(m)
+theta_chapeu = mean(abs(x1-x2))
+theta_chapeu
+```
+

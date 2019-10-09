@@ -1,0 +1,66 @@
+---
+title: "Aula3"
+author: "Érika S."
+date: "22/08/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### Exemplo
+
+Seja I(.) a função indicadora e $Z\sim N(0,1)$. Então para qualquer constante x, temos
+
+$$E(I(z\leq x = P(Z\leq x) = \Phi(x)$$
+
+Gerando uma amostra $Z_1,...,Z_m$ da distirbuição normla padrão, então a média amostral
+
+$$\hat\Phi(x) = \frac{1}{m}\sum_{i=1}^{m}1(z_i <x)$$
+
+Converge com probabilidade 1 para o valor esperado $E(I(Z\leq x)) = P(Z\leq x) = \Phi(x)$.  
+Adote x = 0,6, $\hat\Phi(0.6) = ?$
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+set.seed(100)
+
+z = rnorm(10000)
+x = 0.6
+phi = (z < x) %>% mean()
+phi
+```
+
+**O erro padrão de $\hat\theta = \frac{1}{m}\sum^m_{i=1}g(x_i)$**
+
+A variância de $\hat\theta$ é , sendo 
+$$\sigma^2 = var_f(g(x)) = \int_{-\infty}^{\infty}g(x)f(x)dx$$
+Quando a distribuição de x é desocnhecida, substituímos $F_x$ pela distribuição empírica $F_m$ da amostra $x_1,...,x_m$. A variãncia de $\hat\theta$ pode ser estimada por  
+
+$$\frac{\sigma^2}{m} = \frac{1}{m}[\frac{1}{m}\sum^{m}_{i=1}(g(x_i) - \overline{g(x)})^2] = \frac{1}{m^2}\sum^{m}_{i=1}(g(x_i) - \overline{g(x)})^2$$  
+
+A correspondente estimativa do desvio padrão de $\hat\theta$ é 
+
+$$\widehat{dp}(\theta) = \frac{\sigma}{\sqrt{m}} = \frac{1}{m}(\sum^m_{i = 1}(g(x_i) - \overline{g(x)})^2)^{1/2}$$  
+
+O teorema do Limite Central implica que $\frac{\hat\theta - E(\hat\theta)}{\sqrt{var(\hat\theta)}}$ converge em distribuição para N(0,1), quando $m\rightarrow\infty$. Consequentemente, se m é suficientemente grande, $\hat\theta$ é aproximadamente normal com média $\theta$. Neste caso, a distribuição de $\hat\theta$ pode ser utilizada para calcular o limite de confiança ou limite de erro da estimativa da Integração de Monte Carlo.   
+
+### Exemplo
+Estime a variância do estimador do exemplo anterior e construa o intervalo de confiança 95% aproximado (assintótico) para $\Phi(2)$
+
+```{r}
+set.seed(100)
+
+m  = 10000
+x = 2
+gx = rnorm(m)
+theta.hat = (gx < x) %>% mean() 
+dp = (1/m)*sqrt( sum( ((gx<x) - theta.hat)^2 ) )
+var = dp^2
+IC = theta.hat+c(-1.96*dp, 1.96*dp)
+theta.hat
+dp
+var
+IC
+pnorm(2)
+```
+

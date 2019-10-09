@@ -1,0 +1,69 @@
+---
+title: "Aula6"
+author: "Érika S."
+date: "29/08/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+Construir um intervalo de confiança
+
+
+```{r, warning=FALSE}
+set.seed(100)
+n = 20  
+alpha = 0.05  
+x = rnorm(n, mean = 0, sd = 2)
+LS = ((n-1)*var(x))/qchisq(alpha, df = (n-1))
+LS
+```
+
+Se a amostragem e estimação é repetida um número grande de vezes, aproximadamente 95% dos intervalos contém $\sigma^2$, assumindo que a população amostrada é normal com variância $\sigma^2$  
+
+### Método de Monte Carlo para Estimar Nível de Confiança
+
+Suponha que $X \sim F_x$ é a v.a. de interesse e que $\sigma$ é o parâmetro para ser estimado.  
+
+1. Para cada réplica, $j= 1,...,m$
+  a. Gerar a j-ésima amostra aleatória, $x^{(j)}_1,...,x^{(j)}_n$  
+  b. Calcular o intervalo de confiança $C_j$ para a j-ésima amostra  
+  c. Calcular $y_j = I(\theta \in C_j$, p/ j-ésima amostra 
+2. Calcular o nível de confiança  
+  $$\bar{y} = \frac{1}{m}\sum^m_{i=1}y_j$$
+  
+**Obs.:** O estimador de $\bar{y}$ é uma estimação amostral do verdadeiro nível de confiança $1-\alpha^{*}$, assim, $var(\bar{y} = \frac{(1-\alpha^{*})\alpha^{*}}{m}$ e uma estimação do erro padrão é  
+$$\widehat{se}(\bar{y}) = \sqrt{\frac{(1-\bar{y})\bar{y}}{m}}$$  
+
+__Exemplo:__ Adotando o exemplo do IC para $\sigma^2$, utilize o algoritmo acima com os parâmetros, $\mu=0$, $\sigma = 2$, $n=20$, $m =1000$ réplicas e $\alpha = 0.05$. A proporção amostral de intervalos de confiança que contém $\sigma^2 = 4$ é uma estimativa de Monte Carlo para o verdadeiro nível de confiança.  
+
+```{r}
+set.seed(100)
+n = 20  
+m = 1000
+sigmap = 4
+alpha = 0.05  
+
+## Calculando as amostras
+y = sapply(1:m, function(a){
+  x = rnorm(n, mean = 0, sd = 2)
+LS = ((n-1)*var(x))/qchisq(alpha, df = (n-1))
+sigmap <LS
+})
+
+## Calculando o nível de confiança
+y_ = mean(y)
+y_
+
+## Estimação do erro padrão
+se = sqrt((1-y_)*y_/m)
+se
+
+## Estimativa de Monte Carlo para o verdadeiro nível de confiança
+z = c(-1.96, 1.96)
+y_+z*se
+
+```
+
+

@@ -1,0 +1,115 @@
+---
+title: "Aula14"
+author: "Érika S."
+date: "23/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+**Exemplo** Utilize os dados do exemplo 2 e calcule o viés jackknife para a correlação entre as variáveis GPA e LSAT
+
+```{r}
+LSAT = c(576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = c(339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+
+
+thetachapeu. = sapply(1:length(LSAT), function(i){
+  cor(LSAT[-i], GPA[-i])
+})
+
+
+
+vies = (length(LSAT) -1)*(mean(thetachapeu.) - cor(LSAT, GPA))
+vies
+```
+
+## A estimativa Jackknife do erro padrão
+
+A estimativa Jackknife do erro padrão é   
+$$\hat{se}_j = \sqrt{\frac{n-1}{n}\sum^n_{i = 1}(\theta^n_{(i)} - \bar{\hat\theta_{(i)}})^2}$$  
+para estatísticas suaves $\hat\theta$.  
+Obs.: o fator $\frac{n-1}{n}$ é devido ao viés do estimador (ou seja, para ter um estimador não viesado).  
+
+**Exemplo** calcule a estimativa Jackknife do erro padrão para os dados do exemplo da correlação (dados LSAT e GPA)  
+
+```{r}
+LSAT = c(576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = c(339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+n = length(GPA)
+
+thetachapeu. = sapply(1:n, function(i){
+  cor(LSAT[-i], GPA[-i])
+})
+
+erropadrao = sqrt( ((n-1)/n)*sum( (thetachapeu. - mean(thetachapeu.))^2 ))
+erropadrao
+```
+
+## Quando o Jackknife falha
+
+O método Jackknife pode falhar quando a estimativa $\theta$ não é "suva". Suavidade significa que pequenas mudanças nos dados corresponde a pequenas mudanças na estatística. A mediana é um exemplo de uma estatística que não é suave.  
+
+**Exemplo:** neste exemplo a estimativa jackknife do erro padrão da mediana é calculado para uma amostra de tamanho 10 de 1,..,100.  
+
+- use inicialmente  
+x = (29,79,41,86,91,5,50,83,51,42)
+
+```{r}
+x = c(29,79,41,86,91,5,50,83,51,42)
+n = length(x)
+
+# Jackknife
+thetaJack. = sapply(1:n, function(i){
+  median(x[-i])
+})
+
+erroJack = sqrt( ((n-1)/n)*sum( (thetaJack. - mean(thetaJack.))^2 ) )
+
+
+# Bootstrap
+set.seed(100)
+thetaBoots. = sapply(1:1000, function(a){
+  i = sample(1:n, size = n,replace = T)
+  median(x[i])
+})
+
+erroBoots = sd(thetaBoots.)
+
+# Comparando
+cbind(erroJack, erroBoots)
+
+```
+
+Amostrar sem reposição da população (1,2,...100), usando n = 10 e calcular o erro padrão usando bootstrap e Jackknife
+
+```{r}
+#set.seed(100)
+
+x = sample( 1:100, size = 10)
+n = length(x)
+
+# Jackknife
+thetaJack. = sapply(1:n, function(i){
+  median(x[-i])
+})
+
+erroJack = sqrt( ((n-1)/n)*sum( (thetaJack. - mean(thetaJack.))^2 ) )
+
+
+# Bootstrap
+
+thetaBoots. = sapply(1:1000, function(a){
+  i = sample(1:n, size = n,replace = T)
+  median(x[i])
+})
+
+erroBoots = sd(thetaBoots.)
+
+# Comparando
+cbind(erroJack, erroBoots)
+```
+
+Obs.: 
+(i). Claramente algo está errado aqui, pois as estimativas Bootstrap e Jackknife estão distintas. O Jackknife falha porque a mediana não é suave.  
+(ii). neste caso, quando a estatística não é suave, deixou a observação de fora a cada réplica pode ser aplicado. Se $\sqrt{n}/d \rightarrow 0 $ e $n-d \rightarrow \infty$ então excluir d observações é consistente para a mediana. O tempo computacional aumenta porque existe um grande número de réplicas. Jackknife quando n e d são grandes. 

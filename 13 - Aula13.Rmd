@@ -1,0 +1,46 @@
+---
+title: "Aula13"
+author: "Érika S."
+date: "19/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# O método Jackknife
+
+O método Jackknife é outro método de reamostragem, proposto por Quenouille para estimação do viés e por Tukey para estimação do erro padrão, algumas décadas antes do bootstap.  
+O Jackknife é um tipo de validação cruzada do tipo "deixe um de fora". Seja $x = (x_1,..., x_n)$ uma amostra aleatória observada e defina a i-ésima amostra jackknige como sendo o subconjunto de x que deixa de fora a i-ésima $x_i$. Isto é,  
+$$x_{(i)} = (x_1,..., x_{i-1}, x_{i+1}, ..., x_n)$$  
+Se $\hat\theta = T_n(x)$, defina a i-ésima réplica jackknife  
+$$\hat\theta_{(i)} = T_{n-1}(x_{(i)}), i = 1,...,n$$  
+Suponha que o parâmetro $\theta = t(F)$ é uma ufnção da distribuição F. Seja $F_n$ a fd empírica de uma amostra aleatória da distribuição F. A estimativa "plug-in" de $\theta \ é \ \hat\theta = t(F_n)$. Um "plug-in" $\hat\theta$ é suave no sentido que pequenas mudanças nos dados corresponde a pequenas mudanças em $\hat\theta$.  
+Se $\hat\theta$ é uma estatística suave, então $\hat\theta_{(i)} = t(F_{n-1}(x_{(i)})$, e a estimativa jackknife do viés é  
+$$\hat{Viés}_J = (n-1)(\bar{\hat\theta}_{(.)} - \hat\theta)$$  
+sendo que $\bar{\hat\theta}_{(.)} = \frac{1}{n}\sum^n_{i=1}\theta_{(i)}$ é a média das estimativas deixando de fora uma observação e $\hat\theta = \hat\theta(x)$ é a estimativa calculada a partir da amostra original.  
+Para entender o motivo do estimador Jackknife ter o fator (n-1) considere o caso que $\theta$ é a variância populacional. Se $x_1, ..., x_n$ é um aamsotra da distirbuição de X, a estimativa da variância de X é  
+$$\hat\theta = frac{1}{n}\sum^n_{i = 1}(x_i = \bar{x})^2$$  
+o estimador $\hat\theta$ é viesado para $\sigma^2_x$, com  
+$$viés(\theta) = E(\hat\theta = \sigma^2_x) = \frac{n-1}{n}\sigma^2_x - \sigma^2_x  = - \frac{\sigma^2_x}{n}$$  
+Cada réplica Jackknife calcula o esitmador $\hat\theta_{(i)}$ sobre a amostra de tamanho n-1, assim o viés na réplica Jackknife é $-\frac{\sigma^2_x}{n-1}$. Portanto, para i = 1,...,n, temos  
+
+$$E(\hat\theta_{(i)} - \hat\theta) = E(\hat\theta_{(i)} - \theta) - E(\hat\theta - \theta) $$
+$$= viés(\hat\theta_{(i)} - viés(\hat\theta) $$
+$$ -\frac{\sigma^2_x}{n-1} - (-\frac{\sigma^2_x}{n}) = - \frac{\sigma^2_x}{n-1} + \frac{\sigma^2_x}{n} =  $$
+$$\frac{-n\sigma^2_x + (n-1)\sigma^2_x}{n(n-1)} = \frac{-n\sigma^2_x + n\sigma^2_x - \sigma^2_x}{n(n-1)} $$
+$$= -\frac{\sigma^2_x}{n}\frac{1}{n-1} = viés(\hat\theta)\frac{1}{n-1}$$  
+Portanto, a estimativa Jackknife com fator (n-1) apresenta a estimativa correta do viés na estimativa da variância.  
+Observe que o Jackknife requer apenas n repetições para estimar o viés, a estimativa bootstrap do viés requer várias centenas de repetições.  
+**Exemplo:** Utilizando os dados do exemplo 1, calcule o viés Jackknife do desvio padrão amostral.  
+
+```{r}
+x = c(2.51,-0.64,0.25,-2,-0.25,-0.87,-1.27,1.45,-0.76,0.68)  
+
+thetachapeu. = sapply(1:length(x), function(i){
+  sd(x[-i])
+})
+
+vies = (length(x) -1)*(mean(thetachapeu.) - sd(x))
+vies
+```
+

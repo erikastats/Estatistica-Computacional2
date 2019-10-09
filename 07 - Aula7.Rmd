@@ -1,0 +1,82 @@
+---
+title: "Aula7"
+author: "Érika S."
+date: "02/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+## Método de Monte Carlo para Estimar nível de Confiança
+
+1. Para cada réplica, $j = 1,...,m$  
+  1. gerar a j-ésima amostra aleatória, $x^{(j)}_1,..., x^{(j)}_n$  
+  2. calcular o intervalo de confiança $c_j$ para a j-ésima amostra  
+  3. Calcular $y_j = I(\theta \in c_j)$ para a j-ésima amostra
+2. Calcular o nível de confiança
+
+$$\bar{y} = \frac{1}{m}\sum^m_{j=1}y_j$$  
+$$c_j = (0;\frac{(n-1)S^2}{\chi^2_{\alpha}})$$
+
+O procedimento de estimativa do IC para a variância é sensível a desvios de normalidade, portanto o nível de confinaça real pode ser diferente do nível de confiança declarado quando os dados não são normais. O verdadeiro nível de confiança depende da função distribuição acumulada da estatística $S^2$. O nível de confiança é a probabilidade do intervalo  
+$$(0; \frac{(n-1)S^2}{\chi^2_\alpha(n-1)})$$
+
+conter o valor verdadeiro do parâmetro $\sigma^2$ que é   
+$$p(\frac{(n-1)S^2}{\chi^2_\alpha(n-1)}) = p(S^2> \frac{\sigma^2\chi^2_\alpha(n-1)}{n-1})$$
+$$ = 1 - G(\frac{\sigma^2\chi^2_\alpha(n-1)}{n-1})$$  
+
+Sendo G(.) a função distribuição acumulada do $S^2$. Se a população amostrada não é normal, temos um problema de estimação da fda  
+$$G(t)= p(S^2 \leq g_ 2) = \int^{C_ 2}_ 0g(x)dx$$   
+Sendo g(x) a densidade (desconhecida) de $S^2$ e $C_\alpha = \frac{\sigma^2\chi ^2_\alpha(n-1)}{n-1}$.  
+Uma solução aproximada pode ser calculada empiricamente usando Integração de Monte Carlo para $G(C_2)$. A estimativa de $G(t) = p(S^2 \leq t) = \int^t_0g(x)dx$, é calculada por Integração de Monte Carlo, não é necessário ter uma fórmula explícita para g(x), desde que possamos amostrar a partir da distribuição de g(x).  
+No exemplo anterior, o que acontece se a população amostrada não for normal? Por exemplo, suponha que a população amostrada seja $\chi^2_{(2)}$, que tem variação 4, mas que não é normal. Repita a simulação, substituindo as amostras da N(0,4) por amostras da $\chi^2_{2}$
+
+```{r}
+set.seed(100)
+n = 20  
+m = 10000
+sigmap = 4
+alpha = 0.05  
+
+## Calculando as amostras
+y = sapply(1:m, function(a){
+  x = rchisq(n,  df = 2)
+LS = ((n-1)*var(x))/qchisq(alpha, df = (n-1))
+sigmap <LS
+})
+
+## Calculando o nível de confiança
+y_ = mean(y)
+y_
+
+
+```
+
+```{r}
+set.seed(100)
+n = 20  
+m = 10000
+sigmap = 4
+alpha = 0.05  
+c2 = sigmap*qchisq(alpha, df = (n-1))/(n-1)
+
+gt = sapply(1:m, function(a){
+  x = rchisq(n,  df = 2)
+  var(x) <= c2
+})
+
+1 - mean(gt) #  nível de confiança
+```
+
+## Método de Monte Carlo para teste de Hipóteses
+
+Suponha que desejamos testar uma hipótese referente a um parâmetro $\theta$ que pertence ao espaço paramétrico $\Theta$. As hipóteses de interesse são  
+$$H_0: \theta \in \Theta_0 \ vs \\ H_1: \theta \in \Theta_1$$  
+sendo que $\Theta_0$ e $\Theta_1$ é uma partição do espaço paramétrico $\Theta$. Dois tipos de erros podem ocorrer em testes de hipóteses. O erro tipo I ocorre se a hipótese nula é rejeitada quando ela é verdadeira. O erro tipo II ocorre quando não rejeitamos a hipótese nula e al é falsa.  
+O nível de significância do teste é denotado por $\alpha$, e $\alpha$ é o limite superior da probabilidade do erro tipo I. A probabilidade de rejeitar a hipótese nula depende do verdadeiro valor de $\theta$. Para um dado teste, seja $\pi(\theta)$ a probabilidade de rejeitar $H_0$. Então  
+
+$$\alpha = sup_{\theta \in \Theta_0}\pi(\theta)$$  
+
+A probabilidade do erro tipo I é a probabilidade condicional que a hipótese nula é rejeitada dado que $H_0$ é verdadeiro. portanto, se o teste é replicado um grande número de vezes sobre as condições da hipótese nula, a taxa de erro tipo I observada deve ser aproximadamente $\alpha$.  
+Se T é a estatística de teste e T* é o valor observado da estatística de teste, então T* é significativa se a decisão do teste com base em T* é para rejeitar $H_0$. A probabilidade significativa ou p-valor é o menor valor possível de $\alpha$ de modo que a estatística de teste observada seja significativa.

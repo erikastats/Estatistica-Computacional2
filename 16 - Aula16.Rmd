@@ -1,0 +1,78 @@
+---
+title: "Aula16"
+author: "Érika S."
+date: "26/09/2019"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+# Intervalo de confiança t Bootstrap
+
+Mesmo se a distribuição de $\theta$ é normal e $\hat\theta$ não é viesado para $\theta$, a distribuição normal não é exatamente correta para a estatística  
+
+$$Z = \frac{\hat\theta - E(\hat\theta)}{se(\hat\theta)}$$  
+pois estimamos $se(\hat\theta)$  
+
+Também não podemos afirmar que é uma estatística t-Student, porque a distribuição do estimador bootstrap $\hat{se(\hat\theta)}$ é desconhecido.  O intervalo t bootstrap não usa a distribuição t-student. Como Disttribuição de referência. Em vez disso, a distribuição amostral uma estatística do "tipo t" é gerada por reamostragem.  
+Suponha que $x = (x_1, ..., x_n)$ é uma amostra observada. o intervalo de confiança $100(1- \alpha)\%$ t bootstrap é  
+
+$$(\hat\theta - \hat{t}_{1 - \alpha/2}\hat{se(\hat\theta), \hat\theta - \hat{t}_{\alpha/2}\hat{se(\hat\theta)}}$$  
+
+sendo que $\hat{se(\hat\theta)}, \hat{t}_{\alpha/2} \ e \hat{t}_{1-\alpha/2}$ são calculados usando o esquema baixo.  
+
+_1^o^ Passo:_ Calcule a estatística observada $\hat\theta$  
+_2^o^ Passo:_ Para cada réplica, indexada por b = 1,..,B  
+  (a) amostrar com reposição da amostra x para obter a b-ésima amostra;  
+  (b) calcular $\hat\theta^{(b)}$ utilizando a b-ésima amostra.  
+  (c) estimar o erro padrão $\hat{se(\hat\theta^{(b)})}$ (uma estimativa separada para cada amostra bootstrap; uma estimativa bootstrap; uma estimativa botstrap irá reamostrar da amsotra bootstrap $x^{(b)}$)  
+  (d) calcular a b-ésima réplica da estatística "t"  
+  $$t^{(b)} = \frac{\hat\theta^{(b)} - \hat\theta}{\hat{se(\hat\theta^{(b)})}}$$  
+_3^o^ Passo:_ Encontrar os quartis amostrais $t^*_{\alpha/2}$ e $t^*_{1-\alpha/2}$ da amostra ordenada das réplicas $t^{(b)}$  
+_4^o^ Passo:_ Calcular $\hat{se(\hat\theta)}$, ou seja, calcular o desvio padrão das réplicas $\hat\theta^{(b)}$  
+_5^o^ Passo:_ calcular os limites  
+$$(\hat\theta - \hat{t}_{1-\alpha/2 }\hat{se(\hat\theta)}, \hat\theta - \hat{t}_{\alpha/2} \hat{se(\hat\theta)})$$
+```{r}
+library(tidyverse)
+d = 1000
+LSAT = c(576,635,558,578,666,580,550,661,651,605,653,575,545,572,594)  
+GPA = c(339,330,281,303,344,307,300,343,336,313,312,274,276,288,296)
+n = length(GPA)
+theta = cor(LSAT, GPA)
+
+# passo 1 e 2
+set.seed(100)
+t_b = sapply(1:d, function(x){
+  i = sample(1:n, size = n,replace = T)
+  novoLSAT = LSAT[i]
+  novoGPA = GPA[i]
+  coo = cor(novoLSAT, novoGPA)
+  reacor = sapply(1:d, function(y){
+    j = sample(1:n, n, replace = T)
+    cor(novoGPA[j], novoLSAT[j])
+  })
+  desvio = sd(reacor)
+  
+  c(coo, (coo - theta)/desvio)
+}) %>% t()
+
+# Passo 3
+
+t1alpha2 = quantile(t_b[,2], 0.025)
+talpha2 = quantile(t_b[,2], 0.975)
+
+t1alpha2; talpha2
+
+# Passo 4
+
+se = sd(t_b[,1])
+se
+
+# Passo 5
+theta - c(talpha2,t1alpha2)*se
+
+```
+  
+  $$\hat{se}(\hat\theta) = \sqrt{\frac{1}{B-1}\sum^B_{b=1}(\hat\theta^{(b)} - \bar{\hat\theta})^2}$$  
+  

@@ -1,0 +1,79 @@
+---
+title: "Aula5"
+author: "Érika S."
+date: "28/08/2019"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+### Estimação do Erro Quadrático Médio
+
+Métodos de Monte Carlo podem ser aplicados para estimar o EQM de um estimador. Recordando que o EQM de um estimador $\hat\theta$ para parâmetros $\theta$ para o parâmetro $\theta$ é definido por  
+
+$$EQM(\hat\theta) = E[(\hat\theta - \theta)]$$  
+
+Se m amostras aleatórios $x_{(1)},...,x_{(m)}$ são geradas da distribuição de X, então uma estimativa do EQM de $\theta = \theta(x_1,...,x_n)$ é   
+$$\widehat{EQM} = \frac{1}{m}\sum^m_{i = 1}(\hat\theta^{(j)} - \theta)^2$$  
+sendo $\hat\theta^{(j)} = \hat\theta(x^{(j)}) = \hat\theta(x^{(j)}, ..., x^{(j)}_n)$.  
+
+_Exemplo_: (Estimado $\theta$ EQM de uma média aparada)  
+
+Uma média aparada é às vezes aplicada para estimar o centro de uma distribuição simétrica contínua que não é necessariamente normal. Neste exemplo, calculamos uam estimativa do EQM de uma média aparada.  
+Suponha que $(X_1,...,X_n)$ é uma amostra aleatória e $X_{(1)},...,X_{(m)}$ é a amostra ordenada correspondente. O k-ésimo nível da média aparada amostral é definida por  
+
+$$\bar{X}_{[-k]} = \frac{1}{n-2k}\sum^{n-k}_{i = k+1}X_{(i)}$$  
+
+Obter uma estimativa de Monte Carlo do $EQM(\bar{X}_{[-1]})$, ou seja, da média aparada de 1º nível, supondo que a distribuição da amostra é normal padrão.  
+
+Neste exemplo, o centro da distribuição é _0_ e o parâmetro de interesse é $\theta = E[\bar{X}] = 0$. Vamos denotar o primeiro nível da média aparada amostral por T. Uma estimativa de Monte Carlo de EQM(T) baseado em _m_ réplicas pode ser obtido por:  
+
+1. Gerar as réplicas $T^{j}, j = 1,...,m$, repetindo  
+  a. gera $x^{(j)}_1,...,x^{(j)}_n$, iid da distribuição de X  
+  b. ordenar $x^{(j)}_1,...,x^{(j)}_n$ em ordem crescente e obter $x^{(j)}_{(1)} \leq x^{(j)}_{(2)} \leq ...\leq x^{(j)}_{(n)}$.  
+  c.  Calcular  
+    $$T^{(j)} = \frac{1}{n-2}\sum^{n-1}_{i=2}x_{(i)}^{(j)}$$  
+2. Calcular 
+  $$\widehat{EQM}(T) = \frac{1}{m}\sum^{m}_{j=1}(T^{(j)}-\theta)^2  = \frac{1}{m}\sum^{m}_{j=1}(T^{(j)})^2$$
+
+```{r}
+set.seed(100)
+
+EQM = function(m,n, k){
+  b = sapply(1:m, function(a){
+    Geranormal = rnorm(n)
+    NormOrde = sort(Geranormal)
+    sum(NormOrde[(k+1):(n-k)])/(n-2*k)
+  })
+  
+  mean(b^2)
+}
+
+EQM(10000,20,1)
+```
+
+### Estimando o Nível de Confiança
+
+Se (LI,LS) é uma estimativa do intervalo de confiança para um parâmetro desconhecido $\theta$, então LI e LS são estatísticas com distribuição que depende da distribuição $F_x$ da população amostrada X. O nível de confiança é a probabilidade do intervalo (LI, LS) cobrir o verdadeiro valor do parâmetro $\theta$. A avaliação do nível de confiança é, portanto, um problema de integração.  
+Note que a média amostral de Monte Carlo aproxima-se do valor da integral $\int g(x)dx$, mas não requer que a função g(x) seja especificada. Só é necessário que a amostra da distribuição g(x) possa ser gerada.   
+Considere o procedimento de estimativa do intervalo de confinaça para a variância.  
+
+__Exemplo__: (IC para a variância)  
+
+Se $(X_1,...,X_n)$ é uma amostra aleatória da distribuição $N(\mu, \sigma^2)$, com $n\geq2$, e $S^2$ é a variância amostral, então   
+$$V = \frac{(n-1)S^2}{\sigma^2} \sim \chi^2_{n-1}$$  
+
+O intervalo de confiança $100(1-\alpha)\%$ de um lado é dado por $(0;\frac{(n-1)S^2}{\chi^2_2})$, sendo $X^2_2$ o $\alpha-quartil$ da distribuição ${X^2_{(n-1)}}$. Se a população é normal contenha $\sigma^2$ é $1-\alpha$.  
+O cálculo da LS para uma amostra aleatória de tamanho n = 20 da $N(0,\sigma^2 = 4$ é dada por  
+
+```{r}
+n = 20  
+alpha = 0.05  
+x = rnorm(n, mean = 0, sd = 2)
+LS = ((n-1)*var(x))/qchisq(alpha, df = (n-1))
+```
+
+No exemplo, a população amostrada é normal com $\sigma^2=4$, assim o nível de confiança é exato.  
+
+$$P(\frac{19*S^2}{\chi ^2_{0.05(19)} > 4}) = P(\frac{(n-1)S^2}{\sigma^2} > \chi^2_{0.05}(n-1) = 0.95$$

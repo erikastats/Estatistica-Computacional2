@@ -1,0 +1,71 @@
+---
+title: "Aula19"
+author: "Érika S."
+date: "07/10/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+A validação cruzada pode ser usada para estimar os erros de previsão.  
+Procedimento para estimar o erro de predição usando validação cruzada "n-fold" (deixando um de fora).  
+
+1. para k = 1,...,n, deixar a observação $(x_k, y_k)$ para ser o ponto de teste e usar as demais observações para ajustar o modelo.  
+  a. Ajustar o(s) modelo(s) usando apenas as n-1 observações do conjunto de treinamento.  
+  b. Calcular a previsão da resposta $\hat{y_k} = \hat\beta_0 + \hat\beta_1x_k$ para o ponto de teste  
+  c. calcular o erro de previsão $e_k = y_k - \hat{y_k}$  
+2. Estimar a média do erro de predição ao quadrado  
+$$\hat\sigma_{\epsilon}^2 = \frac{1}{n}\sum^n_{i = 1}e^2_i$$  
+
+```{r}
+library(DAAG)
+data("ironslag")
+n = nrow(ironslag)
+
+errolinear = sapply(1:n, function(i){ 
+  a = lm(magnetic ~ chemical, data = ironslag[-i,])
+  predilinear = predict(a, ironslag[i,])
+  ironslag$magnetic[i] - predilinear
+}) 
+ErroQuadradoLinear = mean(errolinear^2)
+
+# Quadratica
+
+erroQuadratica = sapply(1:n, function(i){ 
+  a = lm(magnetic ~ chemical + I(chemical^2), data = ironslag[-i,])
+  prediquadratico = predict(a, ironslag[i,])
+  ironslag$magnetic[i] - prediquadratico
+}) 
+ErroQuadradoQuadratica = mean(erroQuadratica^2)
+
+# Exponencial
+erroExponencial = sapply(1:n, function(i){ 
+  a = lm(log(magnetic) ~ chemical , data = ironslag[-i,])
+  prediexponencial = predict(a, ironslag[i,])
+  ironslag$magnetic[i] - exp(prediexponencial)
+}) 
+
+ErroQuadradoExponencial = mean(erroExponencial^2)
+
+
+# Log-Log
+erroLogLog = sapply(1:n, function(i){ 
+  a = lm(log(magnetic) ~ log(chemical) , data = ironslag[-i,])
+  prediloglog = predict(a, ironslag[i,])
+  ironslag$magnetic[i] - exp(prediloglog)
+})
+ErroLogLog = mean(erroLogLog^2)
+
+
+c(ErroQuadradoLinear, ErroQuadradoQuadratica, ErroQuadradoExponencial, ErroLogLog)
+```
+```{r}
+# valor ajustado x valor resíduos
+modelo = lm(magnetic ~ chemical + I(chemical^2), data = ironslag)
+shapiro.test(modelo$residuals)
+
+par(mfrow = c(2,2))
+plot(modelo)
+# qqnorm
+```
+
