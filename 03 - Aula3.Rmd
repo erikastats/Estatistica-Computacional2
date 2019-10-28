@@ -1,13 +1,4 @@
----
-title: "Aula3"
-author: "Érika S."
-date: "22/08/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
-### Exemplo
+**Exemplo**
 
 Seja I(.) a função indicadora e $Z\sim N(0,1)$. Então para qualquer constante x, temos
 
@@ -44,7 +35,7 @@ $$\widehat{dp}(\theta) = \frac{\sigma}{\sqrt{m}} = \frac{1}{m}(\sum^m_{i = 1}(g(
 
 O teorema do Limite Central implica que $\frac{\hat\theta - E(\hat\theta)}{\sqrt{var(\hat\theta)}}$ converge em distribuição para N(0,1), quando $m\rightarrow\infty$. Consequentemente, se m é suficientemente grande, $\hat\theta$ é aproximadamente normal com média $\theta$. Neste caso, a distribuição de $\hat\theta$ pode ser utilizada para calcular o limite de confiança ou limite de erro da estimativa da Integração de Monte Carlo.   
 
-### Exemplo
+**Exemplo**
 Estime a variância do estimador do exemplo anterior e construa o intervalo de confiança 95% aproximado (assintótico) para $\Phi(2)$
 
 ```{r}

@@ -1,12 +1,3 @@
----
-title: "Aula10"
-author: "Érika S."
-date: "09/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 **Exemplo:** Use simulação para estimar o poder e faça um gráfico da curva empírica do poder do teste t para testar  
 $$H_0: \mu = 500 \\
 H_1: \mu > 500$$  

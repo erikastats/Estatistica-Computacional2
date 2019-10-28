@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570663332032.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "156FD91B",
+    "lastKnownWriteTime" : 7287422520962202146,
+    "last_content_update" : 1570663332032,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "E89D881D",
+        "caption" : "Remuneracao",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=Remuneracao&cache_key=E89D881D",
+        "displayedObservations" : 1740,
+        "environment" : "",
+        "expression" : "Remuneracao",
+        "object" : "Remuneracao",
+        "preview" : 0,
+        "totalObservations" : 1740,
+        "variables" : 20
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

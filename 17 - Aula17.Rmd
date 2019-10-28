@@ -1,12 +1,3 @@
----
-title: "Aula17"
-author: "Érika S."
-date: "30/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 # Melhor intervalo de Confiança Bootstrap
 
 O melhor intervalo de confiança bootstrap é uma modificação do intervalo percentil que tem propriedade teórica melhor, além de desempenho na prática. Para um intervalo de confiança $100(1-\alpha)\%$, o usual $\alpha/2$ e $1 - \alpha/2$ quantiles são ajustados por dois fatores: um de correção de viés e um de correção de assimetria. A correção de viés é denotada por _Z~o~_ e o ajuste da assimetria ou "aceleração" é denotado por _a_. O melhor intervalo de confiança bootstrap é chamado de BCa.  

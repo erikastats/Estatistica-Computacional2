@@ -1,12 +1,3 @@
----
-title: "Aula13"
-author: "Érika S."
-date: "19/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 # O método Jackknife
 
 O método Jackknife é outro método de reamostragem, proposto por Quenouille para estimação do viés e por Tukey para estimação do erro padrão, algumas décadas antes do bootstap.  

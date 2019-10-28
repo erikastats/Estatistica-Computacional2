@@ -1,14 +1,3 @@
----
-title: "Aula8"
-author: "Érika S."
-date: "04/09/2019"
-output:
-  pdf_document: default
-  word_document: default
-  html_document: default
----
-
-
 ## Taxa Empírica do Erro Tipo I
 
 Uma taxa empírica do erro Tipo I pode ser calculada por um experimento de Monte Carlo. O teste é replicado um número grande de vezes sobre as condições de hipótese nula. A taxa empírica do erro tipo I para o experimento de Monte Carlo á proporção amostral de estatísticas de teste significativas entre as réplicas.  

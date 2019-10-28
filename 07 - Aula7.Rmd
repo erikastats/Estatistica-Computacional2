@@ -1,13 +1,3 @@
----
-title: "Aula7"
-author: "Érika S."
-date: "02/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
-
 ## Método de Monte Carlo para Estimar nível de Confiança
 
 1. Para cada réplica, $j = 1,...,m$  

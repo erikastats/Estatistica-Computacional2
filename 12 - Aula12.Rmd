@@ -1,12 +1,3 @@
----
-title: "Aula12"
-author: "Érika S."
-date: "18/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 **Exemplo 2** O conjunto de dados abaixo é uma amostra de população de 82 escolas de direito.  
 
 LSAT = (576,635,558,578,66,580,550,661,651,605,6653,575,545,572,594)  

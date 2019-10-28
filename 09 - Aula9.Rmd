@@ -1,12 +1,3 @@
----
-title: "Aula9"
-author: "Érika S."
-date: "05/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 $$\sqrt{b_1} = \frac{\frac{1}{n}\sum^m_{i=1}(X_i - \bar{X})^3}{(\frac{1}{n}\sum^m_{i=1}(X_i - \bar{X})^2)^{3/2}}$$ 
 $$H_0: \sqrt{\beta_1} = 0 \\ H_1: \sqrt{\beta_1} \neq 0$$ 
 $$ \rightarrow  se \sqrt{b_1} \ for \ grande \ rejeitamos \ H_0 $$ 

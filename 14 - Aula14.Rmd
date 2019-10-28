@@ -1,12 +1,3 @@
----
-title: "Aula14"
-author: "Érika S."
-date: "23/09/2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 **Exemplo** Utilize os dados do exemplo 2 e calcule o viés jackknife para a correlação entre as variáveis GPA e LSAT
 
 ```{r}
